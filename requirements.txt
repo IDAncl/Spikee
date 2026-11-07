@@ -1,0 +1,15 @@
+supabase
+openpyxl
+pandas
+python-dotenv
+dnspython
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+google-genai
+flask
+requests
+beautifulsoup4
+reportlab
+open-linkedin-api
+gunicorn

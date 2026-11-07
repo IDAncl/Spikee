@@ -1,0 +1,13 @@
+# Lessons learned from real outcomes — auto-maintained, edit freely
+
+This file is written to automatically by the learning loop in outreach_bot.py: every scan, it looks at leads that just booked a meeting or clearly declined after actually engaging, and asks Gemini to distill ONE specific, reusable rule from that real conversation. It's folded into every email's prompt alongside icp.txt from then on.
+
+Nothing here is sacred - if a rule looks wrong, too narrow, or just one weird lead rather than a real pattern, delete the line or edit it. This file will just keep growing new ones on its own either way.
+
+## Learned from what's worked (led to a booked meeting)
+
+- (2026-09-23, from Test Co) Clearly state the customer benefit (e.g., 'no need to replace equipment') immediately after defining the product, and frame the call-to-action as a demo of 'real-life events' rather than a generic sales pitch.
+
+- (2026-09-23, from tomer test) When asking for a referral, explicitly name the job function or department (e.g., security or operations) to make it easy for the recipient to identify the correct internal stakeholder.
+
+## Learned from what's gone wrong (declined after engaging)

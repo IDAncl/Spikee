@@ -1,0 +1,41 @@
+# Secrets - never commit these. On Railway, set CREDENTIALS_JSON_B64 /
+# TOKEN_JSON_B64 as env vars instead (see DEPLOY.md); real values for
+# everything in .env.example go in Railway's Variables tab, not a file.
+.env
+credentials.json
+token.json
+.linkedin_cookies/
+.linkedin_cookies*
+
+# Runtime state - regenerated on its own, committing it just causes
+# conflicts between your machine and the deployed copy.
+state.json
+state.json.bak
+activity_log.md
+no_persona_leads.md
+hyphen_email_report.csv
+
+# Real lead data (names/emails) - lives in Supabase, not the repo.
+leads.xlsx
+leads_template.xlsx
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.venv12/
+venv/
+
+# Scratch / experimental side-folders - not part of the shipped app
+checkpoints/
+searcher/
+sofisticated_project/
+trying_data_searching/
+deploy/
+
+# Editor/OS cruft
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

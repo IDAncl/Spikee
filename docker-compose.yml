@@ -1,0 +1,21 @@
+services:
+  # Your existing agent service
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - CRAWL4AI_URL=http://crawl4ai:11235
+      - CRAWL4AI_API_TOKEN=${CRAWL4AI_API_TOKEN}
+    depends_on:
+      - crawl4ai
+
+  # The Crawl4AI microservice
+  crawl4ai:
+    image: unclecode/crawl4ai:latest
+    ports:
+      - "11235:11235"
+    shm_size: "2g" # Required for headless browser memory allocation
+    environment:
+      - CRAWL4AI_API_TOKEN=${CRAWL4AI_API_TOKEN}
+    restart: unless-stopped

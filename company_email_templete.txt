@@ -1,0 +1,55 @@
+# This is your first-touch cold email, sent to every new lead almost
+# exactly as written below. Lines starting with "#" are comments - they're
+# never sent, use them for notes to yourself.
+#
+# Two kinds of {{ }} spots:
+#   {{company}} and {{email}} - swapped for the lead's real company name /
+#     email address automatically. No AI, pure find-and-replace.
+#   anything else inside {{ }} - a short instruction to the AI for ONLY
+#     that one spot. It writes a short piece of text following that
+#     instruction and nothing else in the email is touched. Keep each
+#     instruction short and specific, and don't put another {{ }} inside
+#     one - nesting isn't supported. Instructions can be written in Hebrew
+#     or English, doesn't matter - what matters is EMAIL_LANGUAGE in .env
+#     (defaults to Hebrew), which is what the filled-in text comes back in.
+#
+# The first non-comment line MUST start with "SUBJECT:" - everything after
+# the blank line under it is the email body, sent as-is. The body below is
+# written right-to-left automatically (Gmail RTL rendering kicks in on its
+# own once it detects Hebrew), no extra work needed here.
+#
+# The referral-ask line ("תוכלו להפנות אותי...") below is now plain, fixed
+# text with no {{ }} around it - it used to be an AI-written free sentence
+# and that's exactly the kind of line that came back grammatically broken
+# in production. It's generic enough (this is a cold email to a general
+# info@/office@ inbox, not a specific person) that it never needed
+# per-lead customization, so it's just sent as written, every time - edit
+# the wording here by hand if you want to change it, not by changing an
+# instruction and hoping the AI phrases it well.
+#
+# The two remaining {{ }} slots are BOTH "word for word" carriers now (see
+# the "מילה במילה כלשונו" instruction inside each) - the AI is only ever
+# filling in a short bracketed noun-phrase inside a fixed sentence it must
+# copy exactly, never writing a full sentence from scratch. This is
+# deliberate: outreach_bot.py's find_carrier_violation() checks the actual
+# output against the fixed anchor phrase and discards (sends as empty
+# instead of sending) anything that doesn't contain it, so if you edit
+# either fixed sentence here, update _KNOWN_CARRIER_ANCHORS in
+# outreach_bot.py to match, or every answer for that blank will get
+# discarded as a violation.
+
+SUBJECT: שאלה קצרה לגבי הטעמת מערכת לומנה
+
+היי,
+
+{{כתבו את המשפט הבא מילה במילה כלשונו, והחליפו אך ורק את החלק בסוגריים המרובעים: "ממה שקראתי עליכם באינטרנט, ראיתי שאתם מתעסקים ב[תיאור קצר וקונקרטי של מה שהחברה עושה, מבוסס אך ורק על המחקר על החברה למטה - לא ניסוח כללי]." שמרו על טון יומיומי ואישי, כאילו מישהו כותב בעצמו ולא מתוך תבנית. חשוב לגבי מתי למלא את זה מול מתי להשמיט: כל פרט קונקרטי אחד במחקר למטה - תחום עיסוק ספציפי, שירות, מוצר, סוג לקוחות, מסלול/יעד, מיקום - כבר נחשב מספיק, גם אם הוא קצר או לא מפורט; אל תדרשו יותר מזה ואל תשמיטו רק כי אפשר תיאורית לכתוב עוד פרטים. השמיטו את המשפט הזה (החזירו מחרוזת ריקה, בלי לנחש) רק במקרה הצר שבו אין במחקר למטה שום פרט קונקרטי בכלל - למשל רק שם החברה, בלי שום תיאור של מה שהיא עושה. חשוב: זה רק המשפט הראשון מתוך שלושה - המשפט השני (מה שאנחנו עושים) קבוע וכבר כתוב למטה, ותמיד יישלח בין אם המשפט הזה הושמט או לא}}
+
+אני עובד בלומנה, חברה שעושה ניתוח אוטומטי בזמן אמת של מצלמות אבטחה, כך שאירוע מתגלה מיד במקום להתגלות רק בבדיקה ידנית של ההקלטות אחרי המעשה.
+
+{{אם המשפט הראשון (עם המחקר על החברה) לא הושמט למעלה: כתבו את המשפט הבא מילה במילה כלשונו, והחליפו אך ורק את החלק בסוגריים המרובעים: "וזה יכל להיות רלוונטי במיוחד עבורכם, לאור [תיאור קצר וקונקרטי שממשיך ישירות מהמשפט הקודם וממנו לבד - למה זה קשור למה שהחברה עושה, מבוסס אך ורק על מה שכבר נכתב שם - לא ניסוח כללי]." שמרו על טון יומיומי ואישי. אם המשפט הראשון הושמט (אין מספיק מידע על החברה), השאירו את זה ריק לגמרי - אל תכתבו כאן שום דבר כללי במקומו}}
+
+אפשר להפנות אותי בבקשה למי שאחראי אצלכם על נושא האבטחה/המצלמות/ניהול המתקן? אשמח לקבל כתובת דוא"ל כדי שאוכל להציג לאדם הנכון.
+
+בברכה,
+איתי לוי
+Lumana / Team 3

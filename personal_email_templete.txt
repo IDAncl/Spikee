@@ -1,0 +1,203 @@
+# Persona-specific first emails. Each lead gets ONE of the templates below
+# instead of the single email_template.txt everyone used to get - the AI
+# picks whichever one genuinely fits, based on the lead's job_title column
+# and what its company's own website says (see company_research), then
+# fills in that template's {{ }} blanks. Same rules as email_template.txt:
+#   {{company}}, {{email}}, {{contact_name}} - plain find-and-replace, no
+#     AI. contact_name comes from the leads table's contact_name column -
+#     if it's blank for a lead, "{{contact_name}}," in a greeting collapses
+#     to "," automatically so it never reads as "Hi ,".
+#   anything else inside {{ }} - a short instruction, filled in by the AI
+#     for that one spot only.
+#
+# Every persona block below MUST:
+#   - start with a label line ending in ":" (this is what gets matched
+#     against the lead's job_title/industry - make it specific)
+#   - have a "SUBJECT:" line right after it (can itself be a {{ }} blank,
+#     like the ones below)
+#   - be separated from the next persona by a line containing only ---
+#
+# A lead whose job_title is blank, or doesn't clearly match any persona
+# below, does NOT fall back to company_email_templete.txt - personal_emails
+# rows only ever get a persona email. Instead that lead is marked
+# needs_attention and you get an alert email, so you can add/adjust a
+# persona (or fill in job_title) and flip it back to "new" to retry.
+# Add as many personas below as you want; there's no limit.
+#
+# Each persona's "superhuman" line (see below) can now draw on BOTH
+# linkedin_info AND, if this lead has a company_website on file, an
+# automatic scrape+summary of that company's own site (cached into
+# company_research) - the AI is given both together when filling blanks.
+#
+# Every persona below opens with one "superhuman" personalization line
+# right after the greeting - two {{ }} blanks filled from that lead's own
+# company_research, in this exact shape:
+#   קראתי עליכם קצת וראיתי שהלקוחות שלכם הם {{...}}. אני בלומנה פותר את
+#   הבעיה הזו בזה שאני {{...}}.
+# If you add more personas of your own, copy that same line in - it's what
+# makes the email feel like it was actually read and written for THIS
+# company rather than templated. Like every other blank, it's skipped
+# (both sentences together) if the research doesn't give the model enough
+# to say something real and specific - never a vague filler guess.
+#
+# --------------------------------------------------------------------------
+# WRITING RULES for anyone adding/editing a persona below (enforced partly
+# by outreach_bot.py's find_style_violation() as a code-level backstop, on
+# top of being spelled out to the model in FIRST_EMAIL_PERSONA_SYSTEM -
+# see the code for both):
+#   1. FIXED ORDER: (a) company-specific fact - only the {{ }} blank above,
+#      skipped entirely if there's nothing real to say, never invented;
+#      (b) one universal pain sentence, phrased as a general truth about
+#      this KIND of company - never a specific claim about the recipient
+#      you can't verify; (c) the one-line self-intro ("אני מנהל מכירות
+#      לומאנה בצוות 3") - never before (a)/(b); (d) exactly ONE concrete
+#      capability, chosen from the site-type table below - never two, and
+#      never invented for a site type that isn't in the table (use the
+#      generic "לאתר רגע ספציפי בשפה חופשית" line alone instead - see the
+#      hotel and HR personas below for examples of that); (e) a closing
+#      {{ }} blank that picks EXACTLY ONE of three fixed closing-line
+#      options and copies it word for word (see CLOSING LINE below) - this
+#      is the one deliberate exception to the "no dash / no rhetorical
+#      question" rule right below, since it's the one thing we're
+#      deliberately asking the model to copy rather than write itself.
+#   2. HARD NOs, anywhere in the fixed body text OR a blank (EXCEPT the
+#      closing-line blank, which is exempt - see above):
+#        - no dash characters (- or ־) anywhere at all
+#        - no rhetorical question as the opening line
+#        - no assuming infrastructure that hasn't actually been confirmed
+#          for THIS lead (e.g. "your street cameras", "your existing
+#          control room", a specific incident count)
+#        - never belittle their existing equipment ("your dumb camera",
+#          etc.)
+#        - never name a Lumana client or award inside a cold first email -
+#          that needs separate approval every time it's used
+#        - never claim a specific prior interaction with THIS company
+#          (e.g. "we already connected to your camera") unless it's
+#          actually true and verified
+#        - at most one concrete capability per email (see the table)
+#
+#   SITE-TYPE -> CAPABILITY TABLE (pick the one row that matches, mention
+#   ONLY that capability - never more than one):
+#     factory / construction / industrial site  -> missing safety gear
+#       (helmet/vest) detection
+#     warehouse / logistics / courier site       -> unauthorized person
+#       entering the warehouse outside operating hours
+#     mall / municipality / parking lot          -> vandalism, or a
+#       suspicious vehicle returning to the site
+#     sensitive security site                    -> weapon near a secured
+#       area
+#   No matching row for a persona's site type (hotels, HR, and anything
+#   else not listed above)? Don't invent a specific capability - keep that
+#   persona's pitch to the generic "search any moment in plain language in
+#   seconds" line only, same as the hotel and HR personas below.
+#
+#   CLOSING LINE: every persona below ends on the same {{ }} blank, and its
+#   instruction is identical in all 4 - the model must pick EXACTLY ONE of
+#   these three fixed options and copy it word for word, not paraphrase it
+#   or blend two of them together (enforced by outreach_bot.py's
+#   find_closer_violation() as a code-level backstop, with one retry before
+#   falling back to needs_attention):
+#     1. "אשמח להראות ב-15 דקות איך זה נראה בול על המצלמות שלכם – כמה זמן
+#        חיפוש בהקלטות זה חוסך בפועל, ואיך נראית התראה בזמן אמת במקום
+#        לגלות אירוע רק למחרת. נוכל לתאם שיחה קצרה?"
+#     2. "יש לי דרך פשוטה להראות לצוות שלכם איך זה עובד בזמן אמת ובמה זה
+#        מחליף סריקה ידנית של שעות הקלטה בכל אירוע. שווה 15 דקות שיחה?"
+#     3. "אשמח להראות בשיחה קצרה בדיוק איך זה עובד על המקרה שלכם – מה זה
+#        חוסך בזמן טיפול באירועים, ואיך ההתראות בזמן אמת מונעות את הבעיה
+#        הבאה לפני שהיא קורה. מתאים שנקבע רבע שעה?"
+#   If you add a persona of your own, copy the SAME closing blank in
+#   (identical instruction text) rather than inventing a new closing line -
+#   see any persona below for the exact wording to copy.
+# --------------------------------------------------------------------------
+
+מנהלי ביטחון וקב"טים:
+SUBJECT: {{נושא קצר וממוקד לאיש ביטחון, לא כללי}}
+
+היי {{contact_name}},
+
+{{כתבו את המשפט הבא מילה במילה כלשונו, והחליפו אך ורק את שני החלקים בסוגריים המרובעים: "קראתי עליכם קצת וראיתי שהלקוחות שלכם הם [תיאור קצר וקונקרטי של סוג הלקוחות/האתרים שהחברה מאבטחת, מבוסס אך ורק על המחקר על החברה למטה]. אני בלומנה פותר את הבעיה הזו בזה שאני [משפט קצר שמחבר את זה ישירות לבעיה של צפייה ידנית/לא בזמן אמת במצלמות אבטחה]." אם אין במחקר למטה מספיק פרטים אמיתיים על מי הלקוחות/האתרים שלהם, השמיטו את המשפט הזה כולו והחזירו מחרוזת ריקה, בלי לנחש}}
+
+ברוב האתרים עם מצלמות, הבעיה האמיתית היא לא כמות המצלמות אלא שאף אחד לא באמת צופה בהן בזמן אמת. זה אומר שכל מה שקורה בפועל מתגלה רק אחרי שמישהו יושב וסורק ידנית שעות של הקלטה.
+
+אני מנהל מכירות לומאנה בצוות 3. המערכת מתלבשת על המצלמות שכבר יש לכם, בלי לגעת בחומרה, ומאפשרת לחפש רגע ספציפי בשפה חופשית במקום לסרוק ידנית, וגם לקבל התראה בזמן אמת על נשק בקרבת אזור מאובטח במקום לגלות את זה רק אחר כך.
+
+{{בחרו בדיוק אחת משלוש אפשרויות הסגירה הבאות, והעתיקו אותה מילה במילה כלשונו - בלי לשנות אף מילה, בלי לקצר, ובלי לשלב בין האפשרויות. אפשרות 1: "אשמח להראות ב-15 דקות איך זה נראה בול על המצלמות שלכם – כמה זמן חיפוש בהקלטות זה חוסך בפועל, ואיך נראית התראה בזמן אמת במקום לגלות אירוע רק למחרת. נוכל לתאם שיחה קצרה?" אפשרות 2: "יש לי דרך פשוטה להראות לצוות שלכם איך זה עובד בזמן אמת ובמה זה מחליף סריקה ידנית של שעות הקלטה בכל אירוע. שווה 15 דקות שיחה?" אפשרות 3: "אשמח להראות בשיחה קצרה בדיוק איך זה עובד על המקרה שלכם – מה זה חוסך בזמן טיפול באירועים, ואיך ההתראות בזמן אמת מונעות את הבעיה הבאה לפני שהיא קורה. מתאים שנקבע רבע שעה?" בחרו את האפשרות שהכי מתאימה לטון של המייל הזה, בלי לכתוב שום דבר מלבד הטקסט המדויק שבחרתם}}
+
+איתי, צוות 3
+
+---
+
+מלונאות, מנכ"לים וסמנכ"לי תפעול:
+SUBJECT: {{נושא קצר וממוקד למלונאות, לא כללי}}
+
+היי {{contact_name}},
+
+{{כתבו את המשפט הבא מילה במילה כלשונו, והחליפו אך ורק את שני החלקים בסוגריים המרובעים: "קראתי עליכם קצת וראיתי שהלקוחות שלכם הם [תיאור קצר וקונקרטי של סוג האורחים/הלקוחות של בית המלון, מבוסס אך ורק על המחקר על החברה למטה]. אני בלומנה פותר את הבעיה הזו בזה שאני [משפט קצר שמחבר את זה ישירות לבעיה של תלונות אורחים/אירועי בטיחות שמתבררים רק אחרי בדיקה ידנית בהקלטות]." אם אין במחקר למטה מספיק פרטים אמיתיים על מי האורחים/הלקוחות שלהם, השמיטו את המשפט הזה כולו והחזירו מחרוזת ריקה, בלי לנחש}}
+
+ברוב בתי המלון, המצלמות מתעדות הכל אבל בפועל אף אחד לא צופה בהן בזמן אמת. זה אומר שתלונת אורח או אירוע בטיחותי מתבררים רק אחרי בירור ארוך מול הקלטות, ולפעמים בלי תשובה ברורה מי אחראי.
+
+אני מנהל מכירות לומאנה בצוות 3. המערכת מתחברת למצלמות הקיימות אצלכם, בלי להחליף ציוד, ומאפשרת לאתר רגע ספציפי בשפה חופשית תוך שניות במקום לחפש ידנית בהקלטות.
+
+{{בחרו בדיוק אחת משלוש אפשרויות הסגירה הבאות, והעתיקו אותה מילה במילה כלשונו - בלי לשנות אף מילה, בלי לקצר, ובלי לשלב בין האפשרויות. אפשרות 1: "אשמח להראות ב-15 דקות איך זה נראה בול על המצלמות שלכם – כמה זמן חיפוש בהקלטות זה חוסך בפועל, ואיך נראית התראה בזמן אמת במקום לגלות אירוע רק למחרת. נוכל לתאם שיחה קצרה?" אפשרות 2: "יש לי דרך פשוטה להראות לצוות שלכם איך זה עובד בזמן אמת ובמה זה מחליף סריקה ידנית של שעות הקלטה בכל אירוע. שווה 15 דקות שיחה?" אפשרות 3: "אשמח להראות בשיחה קצרה בדיוק איך זה עובד על המקרה שלכם – מה זה חוסך בזמן טיפול באירועים, ואיך ההתראות בזמן אמת מונעות את הבעיה הבאה לפני שהיא קורה. מתאים שנקבע רבע שעה?" בחרו את האפשרות שהכי מתאימה לטון של המייל הזה, בלי לכתוב שום דבר מלבד הטקסט המדויק שבחרתם}}
+
+איתי, צוות 3
+
+---
+
+סמנכ"לי תפעול במפעלים:
+SUBJECT: {{נושא קצר וממוקד לתפעול מפעל, לא כללי}}
+
+היי {{contact_name}},
+
+{{כתבו את המשפט הבא מילה במילה כלשונו, והחליפו אך ורק את שני החלקים בסוגריים המרובעים: "קראתי עליכם קצת וראיתי שהלקוחות שלכם הם [תיאור קצר וקונקרטי של סוג הלקוחות שהמפעל מייצר/מספק עבורם, מבוסס אך ורק על המחקר על החברה למטה]. אני בלומנה פותר את הבעיה הזו בזה שאני [משפט קצר שמחבר את זה ישירות לבעיה של אירועי בטיחות בשטח הייצור שמתבררים רק אחרי בדיקה ידנית בהקלטות]." אם אין במחקר למטה מספיק פרטים אמיתיים על מי הלקוחות של המפעל, השמיטו את המשפט הזה כולו והחזירו מחרוזת ריקה, בלי לנחש}}
+
+ברוב המפעלים, המצלמות מתעדות הכל אבל אף אחד לא באמת צופה בהן בזמן אמת. זה אומר שכשקורה אירוע בטיחות בשטח הייצור, מישהו צריך לעבור ידנית על שעות של הקלטה כדי להבין מה קרה.
+
+אני מנהל מכירות לומאנה בצוות 3. המערכת מתחברת למצלמות הקיימות אצלכם, בלי להחליף ציוד, ומאפשרת לאתר כל רגע בשפה חופשית תוך שניות, וגם לקבל התראה בזמן אמת על אי עמידה בציוד בטיחות כמו קסדה או ווסט.
+
+{{בחרו בדיוק אחת משלוש אפשרויות הסגירה הבאות, והעתיקו אותה מילה במילה כלשונו - בלי לשנות אף מילה, בלי לקצר, ובלי לשלב בין האפשרויות. אפשרות 1: "אשמח להראות ב-15 דקות איך זה נראה בול על המצלמות שלכם – כמה זמן חיפוש בהקלטות זה חוסך בפועל, ואיך נראית התראה בזמן אמת במקום לגלות אירוע רק למחרת. נוכל לתאם שיחה קצרה?" אפשרות 2: "יש לי דרך פשוטה להראות לצוות שלכם איך זה עובד בזמן אמת ובמה זה מחליף סריקה ידנית של שעות הקלטה בכל אירוע. שווה 15 דקות שיחה?" אפשרות 3: "אשמח להראות בשיחה קצרה בדיוק איך זה עובד על המקרה שלכם – מה זה חוסך בזמן טיפול באירועים, ואיך ההתראות בזמן אמת מונעות את הבעיה הבאה לפני שהיא קורה. מתאים שנקבע רבע שעה?" בחרו את האפשרות שהכי מתאימה לטון של המייל הזה, בלי לכתוב שום דבר מלבד הטקסט המדויק שבחרתם}}
+
+איתי, צוות 3
+
+---
+
+סמנכ"לי ומנהלי משאבי אנוש / כוח אדם:
+SUBJECT: {{נושא קצר וממוקד למשאבי אנוש, לא כללי}}
+
+היי {{contact_name}},
+
+{{כתבו את המשפט הבא מילה במילה כלשונו, והחליפו אך ורק את שני החלקים בסוגריים המרובעים: "קראתי עליכם קצת וראיתי שהלקוחות שלכם הם [תיאור קצר וקונקרטי של סוג הלקוחות/העובדים הרלוונטי לחברה, מבוסס אך ורק על המחקר על החברה למטה]. אני בלומנה פותר את הבעיה הזו בזה שאני [משפט קצר שמחבר את זה ישירות לבעיה של בירור תלונות עובדים/אירועי בטיחות בעבודה שמתברר רק אחרי חיפוש ידני ארוך בהקלטות]." אם אין במחקר למטה מספיק פרטים אמיתיים על מי הלקוחות/העובדים שלהם, השמיטו את המשפט הזה כולו והחזירו מחרוזת ריקה, בלי לנחש}}
+
+כשקורה אירוע בין עובדים, תלונה על הטרדה, פציעה בעבודה או כל מקרה שדורש בירור פנימי, הצוות שלכם צריך לשבת ולסרוק ידנית שעות של הקלטות מצלמות כדי להבין מה באמת קרה, ולפעמים בלי תשובה חד משמעית מי אחראי.
+
+אני מנהל מכירות לומאנה בצוות 3. המערכת מתחברת למצלמות הקיימות אצלכם, בלי להחליף ציוד, ומאפשרת לאתר כל רגע ספציפי בשפה חופשית תוך שניות במקום לחפש ידנית, כך שבירור של תלונה או אירוע נסגר מהר ובצורה מבוססת עובדות, מה שמגן גם על העובדים וגם על החברה.
+
+{{בחרו בדיוק אחת משלוש אפשרויות הסגירה הבאות, והעתיקו אותה מילה במילה כלשונו - בלי לשנות אף מילה, בלי לקצר, ובלי לשלב בין האפשרויות. אפשרות 1: "אשמח להראות ב-15 דקות איך זה נראה בול על המצלמות שלכם – כמה זמן חיפוש בהקלטות זה חוסך בפועל, ואיך נראית התראה בזמן אמת במקום לגלות אירוע רק למחרת. נוכל לתאם שיחה קצרה?" אפשרות 2: "יש לי דרך פשוטה להראות לצוות שלכם איך זה עובד בזמן אמת ובמה זה מחליף סריקה ידנית של שעות הקלטה בכל אירוע. שווה 15 דקות שיחה?" אפשרות 3: "אשמח להראות בשיחה קצרה בדיוק איך זה עובד על המקרה שלכם – מה זה חוסך בזמן טיפול באירועים, ואיך ההתראות בזמן אמת מונעות את הבעיה הבאה לפני שהיא קורה. מתאים שנקבע רבע שעה?" בחרו את האפשרות שהכי מתאימה לטון של המייל הזה, בלי לכתוב שום דבר מלבד הטקסט המדויק שבחרתם}}
+
+איתי, צוות 3
+
+---
+
+# Catch-all for a senior owner/exec title in an industry that isn't one of
+# the specific ones above (factory/warehouse/hotel/security-site/HR). Added
+# because titles like סמנכ"ל (any VP/deputy, not just Operations), בעלים
+# (owner), and מנכ"ל בכיר (senior CEO) were falling through to
+# needs_attention with no template covering them at all outside the
+# hospitality-bundled CEO persona above. Uses the same generic "search any
+# moment" pitch the hotel/HR personas fall back to when no specific
+# site-type capability applies (see the SITE-TYPE table at the top of this
+# file), since we don't know this company's industry in advance.
+בעלים, מנכ"לים, מנכ"לים בכירים וסמנכ"לים כלליים בכל תעשייה אחרת (למשל בעלים, מנכ"ל, מנכ"ל בכיר, סמנכ"ל, סמנכ"לית, מנכ"לית) שאינה מלונאות, מפעל/תעשייה, אתר אבטחה רגיש, או משאבי אנוש:
+SUBJECT: {{נושא קצר וממוקד לבעלים/מנכ"ל, לא כללי}}
+
+היי {{contact_name}},
+
+{{כתבו את המשפט הבא מילה במילה כלשונו, והחליפו אך ורק את שני החלקים בסוגריים המרובעים: "קראתי עליכם קצת וראיתי שהלקוחות שלכם הם [תיאור קצר וקונקרטי של סוג הלקוחות/הפעילות של החברה, מבוסס אך ורק על המחקר על החברה למטה]. אנחנו בלומנה פותרים את הבעיה הזו בזה שאנחנו [משפט קצר שמחבר את זה ישירות לבעיה של צפייה ידנית/לא בזמן אמת במצלמות אבטחה]." אם אין במחקר למטה מספיק פרטים אמיתיים על מי הלקוחות/הפעילות שלהם, השמיטו את המשפט הזה כולו והחזירו מחרוזת ריקה, בלי לנחש}}
+
+ברוב האתרים עם מצלמות, הבעיה האמיתית היא לא כמות המצלמות אלא שאף אחד לא באמת צופה בהן בזמן אמת. זה אומר שכל מה שקורה בפועל מתגלה רק אחרי שמישהו יושב וסורק ידנית שעות של הקלטה.
+
+אני מנהל מכירות לומאנה בצוות 3. המערכת מתלבשת על המצלמות שכבר יש לכם, בלי לגעת בחומרה, ומאפשרת לאתר רגע ספציפי בשפה חופשית תוך שניות במקום לסרוק ידנית.
+
+{{בחרו בדיוק אחת משלוש אפשרויות הסגירה הבאות, והעתיקו אותה מילה במילה כלשונו - בלי לשנות אף מילה, בלי לקצר, ובלי לשלב בין האפשרויות. אפשרות 1: "אשמח להראות ב-15 דקות איך זה נראה בול על המצלמות שלכם – כמה זמן חיפוש בהקלטות זה חוסך בפועל, ואיך נראית התראה בזמן אמת במקום לגלות אירוע רק למחרת. נוכל לתאם שיחה קצרה?" אפשרות 2: "יש לי דרך פשוטה להראות לצוות שלכם איך זה עובד בזמן אמת ובמה זה מחליף סריקה ידנית של שעות הקלטה בכל אירוע. שווה 15 דקות שיחה?" אפשרות 3: "אשמח להראות בשיחה קצרה בדיוק איך זה עובד על המקרה שלכם – מה זה חוסך בזמן טיפול באירועים, ואיך ההתראות בזמן אמת מונעות את הבעיה הבאה לפני שהיא קורה. מתאים שנקבע רבע שעה?" בחרו את האפשרות שהכי מתאימה לטון של המייל הזה, בלי לכתוב שום דבר מלבד הטקסט המדויק שבחרתם}}
+
+איתי, צוות 3
